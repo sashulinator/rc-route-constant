@@ -57,7 +57,7 @@ export default new Routes();
 
 ### Set previous
 
-Use function `setPreviousRoute` from the library to set property `isPrevious`
+Use function `setPreviousRoute` to set property `isPrevious`
 
 ```ts
 import { useLocation } from "react-router-dom";
