@@ -1,0 +1,55 @@
+export type AdditionalProps = {
+  readonly ICON?: JSX.Element;
+  readonly LABEL?: string;
+  readonly REDIRECT?: string;
+};
+
+export type MandateProps = {
+  readonly PATH: string;
+  readonly NAME: string;
+};
+
+export type RouteProps = MandateProps & AdditionalProps;
+
+export class Route implements RouteProps {
+  readonly NAME: string;
+
+  readonly PATH: string;
+
+  readonly REDIRECT?: string;
+
+  readonly LABEL?: string;
+
+  readonly ICON?: JSX.Element;
+
+  isPrevious: boolean;
+
+  constructor(
+    name: MandateProps["NAME"],
+    path: MandateProps["PATH"],
+    additionalProps?: AdditionalProps
+  ) {
+    this.NAME = name;
+    this.PATH = path;
+
+    this.ICON = additionalProps?.ICON;
+    this.LABEL = additionalProps?.LABEL;
+    this.REDIRECT = additionalProps?.REDIRECT;
+
+    this.isPrevious = false;
+  }
+
+  get isCurrent(): boolean {
+    return buildPathRegExp(this.PATH).test(window?.location?.pathname);
+  }
+
+  isPartOf = (path?: string): boolean => {
+    return buildPathRegExp(this.PATH).test(path || window.location.pathname);
+  };
+}
+
+function buildPathRegExp(path: string): RegExp {
+  return new RegExp(
+    `${path.replace(/:(.)+\//, "(.)+/").replace(/:(.)+/, "(.)+")}`
+  );
+}

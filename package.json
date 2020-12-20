@@ -1,0 +1,36 @@
+{
+  "name": "@savchenko91/rc-route-constant",
+  "version": "1.0.0",
+  "description": "Routes for React",
+  "main": "./dist",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/savchenko91/rc-route-constant"
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest --coverage"
+  },
+  "author": "Alexander Savchenko <savchenkoalexander91@gmail.com>",
+  "license": "Unlicense",
+  "dependencies": {
+    "@types/react": "^17.0.0",
+    "global": "^4.4.0",
+    "tsc": "^1.20150623.0",
+    "typescript": "^4.0.0-dev.20200803"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.13",
+    "jest": "24.8.0",
+    "ts-jest": "24.0.2",
+    "typescript": "3.5.1"
+  }
+}
