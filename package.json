@@ -20,7 +20,7 @@
     "test": "jest --coverage"
   },
   "author": "Alexander Savchenko <savchenkoalexander91@gmail.com>",
-  "license": "Unlicense",
+  "license": "MIT",
   "dependencies": {
     "@types/react": "^17.0.0",
     "global": "^4.4.0",
