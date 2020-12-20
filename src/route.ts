@@ -42,7 +42,7 @@ export class Route implements RouteProps {
   }
 
   get isCurrent(): boolean {
-    return buildPathRegExp(this.PATH).test(window?.location?.pathname);
+    return buildPathRegExp(this.PATH, true).test(window?.location?.pathname);
   }
 
   isPartOf = (path?: string): boolean => {
@@ -50,8 +50,10 @@ export class Route implements RouteProps {
   };
 }
 
-function buildPathRegExp(path: string): RegExp {
+function buildPathRegExp(path: string, end?: boolean): RegExp {
   return new RegExp(
-    `${path.replace(/:(.)+\//, "(.)+/").replace(/:(.)+/, "(.)+")}`
+    `${path.replace(/:(.)+\//, `(.)+/`).replace(/:(.)+/, `(.)+`)}${
+      end ? "$" : ""
+    }`
   );
 }
