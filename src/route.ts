@@ -48,6 +48,14 @@ export class Route implements RouteProps {
   isPartOf = (path?: string): boolean => {
     return buildPathRegExp(this.PATH).test(path || window.location.pathname);
   };
+
+  static new(
+    name: MandateProps["NAME"],
+    path: MandateProps["PATH"],
+    additionalProps?: AdditionalProps
+  ) {
+    return new Route(name, path, additionalProps);
+  }
 }
 
 function buildPathRegExp(path: string, end?: boolean): RegExp {

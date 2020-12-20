@@ -16,13 +16,13 @@ class Routes {
   constructor() {
     // Login
 
-    this.LOGIN = new Route("Login", "/login");
+    this.LOGIN = Route.new("Login", "/login");
 
     // App
 
     const app = "/app";
 
-    this.APP = new Route("Дилер", app);
+    this.APP = Route.new("Дилер", app);
 
     const appAbout = `${app}/about`;
     const appUsers = `${app}/users`;
@@ -31,11 +31,11 @@ class Routes {
 
     // About
 
-    this.ABOUT = new Route("About", appAbout);
+    this.ABOUT = Route.new("About", appAbout);
 
     // Users
 
-    this.USERS = new Route("Search", appUsers);
+    this.USERS = Route.new("Search", appUsers);
 
     this.USER = new Route("Search", appUser);
 
