@@ -13,8 +13,9 @@ ROUTES.LOGIN.isCurrent;
 
 ```ts
 const ROUTES = {
+  // You can create instance with the operator "new"
   LOGIN: new Route("Login", "/login"),
-  ABOUT: Route.new("About", "/about"),
+  // Or with the static function "new"
   MAIN: Route.new("Main", "/", { REDIRECT: "/main" }),
 };
 ```
@@ -26,7 +27,7 @@ const ROUTES = {
 To create constants I highly recommend using a class instead of an object because of autocompletion and...
 
 ```ts
-import Route from "@savchenko91/rc-route";
+import Route from "@savchenko91/rc-route-constant";
 
 class Routes {
   public readonly ABOUT: Route;
@@ -41,7 +42,7 @@ class Routes {
 
     this.ABOUT_MY = Route.new("about me", about);
 
-    // you can't do smth like this in object assertion
+    // You can't do smth like this in object assertion
     this.ABOUT = Route.new("about", `${about}/me`, {
       REDIRECT: this.ABOUT_MY.PATH,
     });
@@ -61,7 +62,7 @@ Use function `setPreviousRoute` to set property `isPrevious`
 
 ```ts
 import { useLocation } from "react-router-dom";
-import { setPreviousRoute } from "@savchenko91/rc-route";
+import { setPreviousRoute } from "@savchenko91/rc-route-constant";
 
 function Routes() {
   const location = useLocation();
