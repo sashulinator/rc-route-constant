@@ -46,7 +46,9 @@ class Routes {
       REDIRECT: this.ABOUT_MY.PATH,
     });
 
-    this.ABOUT = Route.new("about my cat", `${about}/my-cat`);
+    this.ABOUT = Route.new("about my cat", `${about}/my-cat`, {
+      LABEL: "about-my-cat",
+    });
   }
 }
 
@@ -67,5 +69,61 @@ function Routes() {
   setPreviousRoute(ROUTES);
 
   return; //
+}
+```
+
+## Additional features
+
+### `getCurrent`
+
+Real example:
+
+```ts
+document.title = `You are on page "${getСurrent(ROUTES)?.NAME || ""}"`;
+```
+
+### `getListByRegExp`
+
+```tsx
+function Sider() {
+  const menuRoutes = useMemo(
+    () => getListByRegExp(ROUTES, /\/app\/([a-z-]+)$/),
+    []
+  );
+
+  return (
+    <ul>
+      {menuRoutes.map((route) => (
+        <li>
+          <a className={route.LABEL} href={route.REDIRECT || route.PATH}>
+            {route.ICON}
+            {route.NAME}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### `getListForEveryLocation`
+
+```tsx
+function Breadcrumbs() {
+  const location = useLocation();
+
+  const routes = useMemo(() =>
+    getListForEveryLocation(ROUTES, location.pathname, [])
+  );
+
+  return (
+    <ul>
+      {routes.map((route, i) => (
+        <li>
+          <a href={route.REDIRECT || route.PATH}>/ {route.NAME}</a>
+        </li>
+      ))}
+    </ul>
+  );
 }
 ```
