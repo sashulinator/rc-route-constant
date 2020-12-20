@@ -1,3 +1,5 @@
+export type Routes = { [key: string]: Route };
+
 export type AdditionalProps = {
   readonly ICON?: JSX.Element;
   readonly LABEL?: string;

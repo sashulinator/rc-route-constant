@@ -1,6 +1,4 @@
-import { Route } from "./route";
-
-export type Routes = { [key: string]: Route };
+import { Routes } from "./route";
 
 let previous = "";
 let current = "";
