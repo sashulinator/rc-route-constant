@@ -47,19 +47,19 @@ class ROUTES {
   public readonly MAIN: Route;
 
   constructor() {
-    this.MAIN = Route.new("main page", `${about}/my-cat`);
+    this.MAIN = Route.new("main page", `/`);
 
     const about = "/about";
 
     this.ABOUT_MY = Route.new("about me", about);
 
+    this.ABOUT_MY_CAT = Route.new("about my cat", `${about}/my-cat`, {
+      LABEL: "about-my-cat",
+    });
+
     // ...You can't do smth like this in object assertion
     this.ABOUT = Route.new("about", `${about}/me`, {
       REDIRECT: this.ABOUT_MY.PATH,
-    });
-
-    this.ABOUT = Route.new("about my cat", `${about}/my-cat`, {
-      LABEL: "about-my-cat",
     });
   }
 }
@@ -88,7 +88,7 @@ function ParentComponent() {
 
 ### `getCurrent`
 
-You can automaticaly set page title
+You can automatically set a page title
 
 ```ts
 document.title = `You are on page "${getСurrent(ROUTES)?.NAME || ""}"`;
@@ -97,6 +97,8 @@ document.title = `You are on page "${getСurrent(ROUTES)?.NAME || ""}"`;
 ### `getListByRegExp`
 
 ```tsx
+import { getListByRegExp } from "react-router-dom";
+
 function Sider() {
   const routes = useMemo(
     () => getListByRegExp(ROUTES, /\/app\/([a-z-]+)$/),
@@ -121,6 +123,9 @@ function Sider() {
 ### `getListForEveryLocation`
 
 ```tsx
+import { useLocation } from "react-router-dom";
+import { getListForEveryLocation } from "react-router-dom";
+
 function Breadcrumbs() {
   const location = useLocation();
 
