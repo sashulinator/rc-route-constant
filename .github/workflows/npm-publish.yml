@@ -26,13 +26,14 @@ jobs:
       - run: git config --global user.name "GitHub CD bot"
       - run: git config --global user.email "github-cd-bot@example.com"
       # upgrade npm version in package.json to the tag used in the release.
-      - run: npm version ${{ github.event.release.tag_name }}
+      - run: npm version patch
+      - run: echo "$NODE_AUTH_TOKEN"
       # build the project
       - run: npm run build
       # run tests just in case
       - run: npm test
       # publish to NPM -> there is one caveat, continue reading for the fix
-      - run: npm publish --tag 1.0.8
+      - run: npm publish --access public
         env:
           # Use a token to publish to NPM. See below for how to set it up
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
