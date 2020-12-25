@@ -1,6 +1,10 @@
 name: NPM publish CD workflow
 
-on: [push]
+on:
+  [push]
+  # release:
+  #   # This specifies that the build will be triggered when we publish a release
+  #   types: [published]
 
 jobs:
   build:
@@ -19,7 +23,7 @@ jobs:
         with:
           node-version: 12
           # Specifies the registry, this field is required!
-          registry-url: https://registry.npmjs.org/
+          # registry-url: https://registry.npmjs.org/
       # clean install of your projects' deps. We use "npm ci" to avoid package lock changes
       - run: yarn install
       # set up git since we will later push to the repo
@@ -27,16 +31,18 @@ jobs:
       - run: git config --global user.email "github-cd-bot@example.com"
       # upgrade npm version in package.json to the tag used in the release.
       - run: npm version patch
-      - run: echo "$NODE_AUTH_TOKEN"
+      - run: echo "$NPM_AUTH_TOKEN"
+      - run: echo "${{ secrets.NPM_TOKEN }}"
       # build the project
       - run: npm run build
       # run tests just in case
       - run: npm test
+      - run: npm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
       # publish to NPM -> there is one caveat, continue reading for the fix
       - run: npm publish --access public
         env:
           # Use a token to publish to NPM. See below for how to set it up
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       # push the version changes to GitHub
       - run: git push
         env:
