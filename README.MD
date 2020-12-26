@@ -91,13 +91,22 @@ function ParentComponent() {
 You can automatically set a page title
 
 ```ts
-document.title = `You are on page "${getСurrent(ROUTES)?.NAME || ""}"`;
+import { useLocation } from "react-router-dom";
+import { getСurrent } from "@savchenko91/rc-route-constant";
+
+function ParentComponent() {
+  useLocation(); // component renders by every pathname change
+
+  document.title = `You are on page "${getСurrent(ROUTES)?.NAME || ""}"`;
+
+  return <div>...</div>;
+}
 ```
 
 ### `getListByRegExp`
 
 ```tsx
-import { getListByRegExp } from "react-router-dom";
+import { getListByRegExp } from "@savchenko91/rc-route-constant";
 
 function Sider() {
   const routes = useMemo(
@@ -124,7 +133,7 @@ function Sider() {
 
 ```tsx
 import { useLocation } from "react-router-dom";
-import { getListForEveryLocation } from "react-router-dom";
+import { getListForEveryLocation } from "@savchenko91/rc-route-constant";
 
 function Breadcrumbs() {
   const location = useLocation();
