@@ -4,28 +4,33 @@ Do you have a file `src/constants/routes.js`? Good. This libary will help you wi
 
 ```ts
 const ROUTES = {
-  LOGIN: Route.new("Login page", "/login"),
-  MAIN: Route.new("Main page", "/", { REDIRECT: "/main" }),
+  LOGIN: new Route("Login page", "/login"),
+  MAIN: new Route("Main page", "/", "/main", { ICON: SomeIcon }),
 };
 
 console.log(ROUTES);
 // {
 //   LOGIN: {
-//     NAME: 'Login page'
-//     PATH: '/login'
-//     REDIRECT: undefined
+//     NAME: 'Login page',
+//     PATH: '/login',
+//     REDIRECT: '/login',
+//     REDIRECT_PATH: '/login',
 //     isCurrent: false,
 //     isPrevious: false,
-//     isPartOf: (string) => boolean
+//     isPartOf: (string) => boolean,
 //     ...
 //   },
 //   MAIN: {
-//     NAME: 'Main page'
-//     PATH: '/'
-//     REDIRECT: '/main'
+//     NAME: 'Main page',
+//     PATH: '/',
+//     REDIRECT: '/main',
+//     REDIRECT_PATH: '/main',
 //     isCurrent: false,
 //     isPrevious: false,
-//     isPartOf: (string) => boolean
+//     isPartOf: (string) => boolean,
+//     PAYLOAD: {
+//       ICON: React.component
+//     }
 //     ...
 //   }
 // }
@@ -39,6 +44,7 @@ To create constants I highly recommend using a class instead of an object becaus
 
 ```ts
 import Route from "@savchenko91/rc-route-constant";
+import CatIcon from './monsterIcon'
 
 class ROUTES {
   public readonly ABOUT: Route;
@@ -47,20 +53,20 @@ class ROUTES {
   public readonly MAIN: Route;
 
   constructor() {
-    this.MAIN = Route.new("main page", `/`);
+    this.MAIN = new Route("main page", `/`);
 
     const about = "/about";
+    const aboutMe = "/about/me";
+    const aboutMyCat = "/about/myCat";
 
-    this.ABOUT_MY = Route.new("about me", about);
+    this.ABOUT_ME = new Route("about me", aboutMe);
 
-    this.ABOUT_MY_CAT = Route.new("about my cat", `${about}/my-cat`, {
-      LABEL: "about-my-cat",
+    this.ABOUT_MY_CAT = new Route("about my cat", aboutMyCat, null, {
+      ICON: CatIcon,
     });
 
     // ...You can't do smth like this in object assertion
-    this.ABOUT = Route.new("about", `${about}/me`, {
-      REDIRECT: this.ABOUT_MY.PATH,
-    });
+    this.ABOUT = new Route("about", about, aboutMe);
   }
 }
 
@@ -118,8 +124,8 @@ function Sider() {
     <ul>
       {routes.map((route) => (
         <li>
-          <a className={route.LABEL} href={route.REDIRECT || route.PATH}>
-            {route.ICON}
+          <a className={route.LABEL} href={route.REDIRECT_PATH}>
+            {route.PAYLOAD.ICON}
             {route.NAME}
           </a>
         </li>
@@ -146,7 +152,7 @@ function Breadcrumbs() {
     <ul>
       {routes.map((route, i) => (
         <li>
-          <a href={route.REDIRECT || route.PATH}>/ {route.NAME}</a>
+          <a href={route.REDIRECT_PATH}>/ {route.NAME}</a>
         </li>
       ))}
     </ul>

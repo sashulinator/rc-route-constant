@@ -1,8 +1,9 @@
 export type Routes = { [key: string]: Route };
 
-export type MandateProps = {
-  readonly PATH: string;
-  readonly NAME: string;
+export type RouteProps = {
+  readonly PATH: Route['PATH'];
+  readonly NAME: Route['NAME'];
+  readonly REDIRECT?: string | Route
 };
 
 export class Route {
@@ -12,19 +13,29 @@ export class Route {
 
   readonly PAYLOAD: unknown;
 
+  readonly REDIRECT: Route | string;
+
   isPrevious: boolean;
 
   constructor(
-    name: MandateProps["NAME"],
-    path: MandateProps["PATH"],
+    name: Route['NAME'],
+    path: Route["PATH"],
+    redirect: Route['REDIRECT'],
     payload?: unknown
   ) {
     this.NAME = name;
     this.PATH = path;
 
+    this.REDIRECT = redirect || path
+
     this.PAYLOAD = payload;
 
     this.isPrevious = false;
+  }
+
+  get REDIRECT_PATH(): string {
+    if (!this.REDIRECT) return this.PATH
+    return this.REDIRECT instanceof Route ? this.REDIRECT.REDIRECT_PATH : this.REDIRECT
   }
 
   get isCurrent(): boolean {
@@ -35,6 +46,8 @@ export class Route {
     return buildPathRegExp(this.PATH).test(path || window.location.pathname);
   };
 }
+
+
 
 function buildPathRegExp(path: string, end?: boolean): RegExp {
   return new RegExp(
