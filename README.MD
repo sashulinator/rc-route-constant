@@ -4,32 +4,46 @@ Do you have a file `src/constants/routes.js`? Good. This libary will help you wi
 
 ```ts
 const ROUTES = {
-  LOGIN: Route.new("Login page", "/login"),
-  MAIN: Route.new("Main page", "/", { REDIRECT: "/main" }),
+  LOGIN: new Route("Login page", "/login"),
+  MAIN: new Route("Main page", "/", "/main", { ICON: SomeIcon }),
 };
 
 console.log(ROUTES);
 // {
 //   LOGIN: {
-//     NAME: 'Login page'
-//     PATH: '/login'
-//     REDIRECT: undefined
+//     NAME: 'Login page',
+//     PATH: '/login',
+//     REDIRECT: '/login',
+//     REDIRECT_PATH: '/login',
 //     isCurrent: false,
 //     isPrevious: false,
-//     isPartOf: (string) => boolean
+//     isPartOf: (string) => boolean,
 //     ...
 //   },
 //   MAIN: {
-//     NAME: 'Main page'
-//     PATH: '/'
-//     REDIRECT: '/main'
+//     NAME: 'Main page',
+//     PATH: '/',
+//     REDIRECT: '/main',
+//     REDIRECT_PATH: '/main',
 //     isCurrent: false,
 //     isPrevious: false,
-//     isPartOf: (string) => boolean
+//     isPartOf: (string) => boolean,
+//     PAYLOAD: {
+//       ICON: React.component
+//     }
 //     ...
 //   }
 // }
 ```
+
+### Problem to solve
+
+- Is previous route?
+- Is current route?
+- Is this route part of that route?
+- Get routes for Breadcrumbs
+- Get all routes by regExp
+- Save url queries
 
 ## How to start
 
@@ -39,6 +53,7 @@ To create constants I highly recommend using a class instead of an object becaus
 
 ```ts
 import Route from "@savchenko91/rc-route-constant";
+import CatIcon from "./monsterIcon";
 
 class ROUTES {
   public readonly ABOUT: Route;
@@ -47,20 +62,20 @@ class ROUTES {
   public readonly MAIN: Route;
 
   constructor() {
-    this.MAIN = Route.new("main page", `/`);
+    this.MAIN = new Route("main page", `/`);
 
     const about = "/about";
+    const aboutMe = "/about/me";
+    const aboutMyCat = "/about/myCat";
 
-    this.ABOUT_MY = Route.new("about me", about);
+    this.ABOUT_ME = new Route("about me", aboutMe);
 
-    this.ABOUT_MY_CAT = Route.new("about my cat", `${about}/my-cat`, {
-      LABEL: "about-my-cat",
+    this.ABOUT_MY_CAT = new Route("about my cat", aboutMyCat, null, {
+      ICON: CatIcon,
     });
 
     // ...You can't do smth like this in object assertion
-    this.ABOUT = Route.new("about", `${about}/me`, {
-      REDIRECT: this.ABOUT_MY.PATH,
-    });
+    this.ABOUT = new Route("about", about, aboutMe);
   }
 }
 
@@ -74,11 +89,13 @@ Use function `setPreviousRoute` to set property `isPrevious`
 ```ts
 import { useLocation } from "react-router-dom";
 import { setPreviousRoute } from "@savchenko91/rc-route-constant";
+import ROUTES from "./path/to/your/constants/routes";
 
 function ParentComponent() {
   const location = useLocation();
 
-  setPreviousRoute(ROUTES);
+  // write "{ ...ROUTES }" if you use TS because of ERROR TS2345
+  setPreviousRoute({ ...ROUTES });
 
   return <div>...</div>;
 }
@@ -93,11 +110,13 @@ You can automatically set a page title
 ```ts
 import { useLocation } from "react-router-dom";
 import { getСurrent } from "@savchenko91/rc-route-constant";
+import ROUTES from "./path/to/your/constants/routes";
 
-function ParentComponent() {
+function Component() {
   useLocation(); // component renders by every pathname change
 
-  document.title = `You are on page "${getСurrent(ROUTES)?.NAME || ""}"`;
+  // write "{ ...ROUTES }" if you use TS because of ERROR TS2345
+  document.title = `You are on page "${getСurrent({ ...ROUTES })?.NAME || ""}"`;
 
   return <div>...</div>;
 }
@@ -107,6 +126,7 @@ function ParentComponent() {
 
 ```tsx
 import { getListByRegExp } from "@savchenko91/rc-route-constant";
+import ROUTES from "./path/to/your/constants/routes";
 
 function Sider() {
   const routes = useMemo(
@@ -118,8 +138,8 @@ function Sider() {
     <ul>
       {routes.map((route) => (
         <li>
-          <a className={route.LABEL} href={route.REDIRECT || route.PATH}>
-            {route.ICON}
+          <a className={route.LABEL} href={route.REDIRECT_PATH}>
+            {route.PAYLOAD.ICON}
             {route.NAME}
           </a>
         </li>
@@ -134,22 +154,56 @@ function Sider() {
 ```tsx
 import { useLocation } from "react-router-dom";
 import { getListForEveryLocation } from "@savchenko91/rc-route-constant";
+import ROUTES from "./path/to/your/constants/routes";
 
 function Breadcrumbs() {
   const location = useLocation();
 
-  const routes = useMemo(() =>
-    getListForEveryLocation(ROUTES, location.pathname, [])
+  const routes = useMemo(
+    () => getListForEveryLocation(ROUTES, location.pathname),
+    []
   );
 
   return (
     <ul>
       {routes.map((route, i) => (
         <li>
-          <a href={route.REDIRECT || route.PATH}>/ {route.NAME}</a>
+          <a href={route.REDIRECT_PATH}>/ {route.NAME}</a>
         </li>
       ))}
     </ul>
   );
+}
+```
+
+### Save url queries
+
+This is the case: you have a car service with routes `search/car` and `search/client` and you want to store search queries somewhere, you can save them like this:
+
+```ts
+if (ROUTES.CAR.isCurrent) {
+  ROUTES.SEARCH.REDIRECT = ROUTES.CAR;
+  ROUTES.CLIENT.REDIRECT = location.pathname;
+} else {
+  ROUTES.SEARCH.REDIRECT = ROUTES.CLIENT;
+  ROUTES.CAR.REDIRECT = location.pathname;
+}
+```
+
+Now user on "about" page and clicks on "search" link:
+
+```tsx
+<Link to={ROUTES.SEARCH.REDIRECT_PATH}>Search page</Link>
+// ROUTES.SEARCH.REDIRECT_PATH = "/search/car?brend=lada&model=vesta"
+```
+
+See? You saved the queries into ROUTES.CAR but you get them from ROUTES.SEARCH
+
+```ts
+// CODE FROM THIS LIBRARY
+get REDIRECT_PATH(): string {
+  if (!this.REDIRECT) return this.PATH;
+
+  return this.REDIRECT instanceof Route ? this.REDIRECT.REDIRECT_PATH : this.REDIRECT;
 }
 ```
