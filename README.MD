@@ -190,11 +190,12 @@ if (ROUTES.CAR.isCurrent) {
 }
 ```
 
-Now user on "about" page and clicks on "search" link:
+Now user is on a page "about" and clicks on a link "search":
 
 ```tsx
-<Link to={ROUTES.SEARCH.REDIRECT_PATH}>Search page</Link>
-// ROUTES.SEARCH.REDIRECT_PATH = "/search/car?brend=lada&model=vesta"
+const redirectPath = ROUTES.SEARCH.REDIRECT_PATH
+console.log(redirectPath) // /search/car?brend=lada&model=vesta
+<Link to={redirectPath}>Search page</Link>
 ```
 
 See? You saved the queries into ROUTES.CAR but you get them from ROUTES.SEARCH
