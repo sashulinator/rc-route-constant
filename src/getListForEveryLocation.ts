@@ -1,4 +1,4 @@
-import { Route, Routes } from "./route";
+import Route, { Routes } from "./route";
 
 export function getListForEveryLocation(
   ROUTES: Routes,

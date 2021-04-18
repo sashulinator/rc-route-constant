@@ -1,5 +1,4 @@
-import { Route } from "./route";
-export default Route;
+export { default } from "./route";
 
 export * from "./getCurrent";
 export * from "./getListByRegExp";

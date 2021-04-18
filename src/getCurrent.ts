@@ -1,4 +1,4 @@
-import { Route, Routes } from "./route";
+import Route, { Routes } from "./route";
 
 export function getСurrent(ROUTES: Routes): Route | null {
   const keys = Object.keys(ROUTES);

@@ -1,4 +1,4 @@
-import { Route, Routes } from "./route";
+import Route, { Routes } from "./route";
 
 export function getListByRegExp(ROUTES: Routes, pathRE: RegExp): Route[] {
   const result = [];

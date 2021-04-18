@@ -1,35 +1,28 @@
-export type Routes = { [key: string]: Route };
+export type Routes = Record<string, Route>;
 
-export type RouteProps = {
-  readonly PATH: Route["PATH"];
-  readonly NAME: Route["NAME"];
-  readonly REDIRECT?: string | Route;
-};
+export interface RouteProps<Payload = undefined> {
+  path: Route["PATH"];
+  name: Route["NAME"];
+  redirect?: Route["REDIRECT"];
+  payload?: Payload;
+}
 
-export class Route {
-  readonly NAME: string;
+export default class Route<Payload = undefined> {
+  NAME: string;
 
-  readonly PATH: string;
+  PATH: string;
 
-  readonly PAYLOAD: unknown;
+  PAYLOAD: Payload;
 
-  readonly REDIRECT: Route | string;
+  REDIRECT: Route | string;
 
   isPrevious: boolean;
 
-  constructor(
-    name: Route["NAME"],
-    path: Route["PATH"],
-    redirect?: Route["REDIRECT"],
-    payload?: unknown
-  ) {
+  constructor({ name, path, payload, redirect }: RouteProps<Payload>) {
     this.NAME = name;
     this.PATH = path;
-
-    this.REDIRECT = redirect || path;
-
     this.PAYLOAD = payload;
-
+    this.REDIRECT = redirect || path;
     this.isPrevious = false;
   }
 
