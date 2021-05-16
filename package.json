@@ -1,6 +1,6 @@
 {
   "name": "@savchenko91/rc-route-constant",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Routes for React",
   "main": "./dist",
   "publishConfig": {
