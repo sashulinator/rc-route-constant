@@ -1,64 +1,54 @@
 import Route from "../src/index";
 
-class Routes {
-  public readonly LOGIN: Route;
-
-  public readonly APP: Route;
-
-  public readonly ABOUT: Route;
-
-  public readonly USERS: Route;
-
-  public readonly USER: Route;
-
-  public readonly USER_CATS: Route;
-
-  constructor() {
-    // Login
-
-    this.LOGIN = new Route({
-      name: "login",
-      path: "/login",
-    });
-
-    // App
-
-    const app = "/app";
-
-    this.APP = new Route({
-      name: "app",
-      path: app,
-    });
-
-    const appAbout = `${app}/about`;
-    const appUsers = `${app}/users`;
-    const appUser = `${appUsers}/:id`;
-    const appUserCats = `${appUsers}/:id/cats`;
-
-    // About
-
-    this.ABOUT = new Route({
-      name: "about",
-      path: appAbout,
-    });
-
-    // Users
-
-    this.USERS = new Route({
-      name: "users",
-      path: appUsers,
-    });
-
-    this.USER = new Route({
-      name: "user",
-      path: appUser,
-    });
-
-    this.USER_CATS = new Route({
-      name: "user's cats",
-      path: appUserCats,
-    });
-  }
+enum Paths {
+  login = "login",
+  app = "app",
+  about = "about",
+  users = "users",
+  cats = "cats",
 }
 
-export default new Routes();
+enum Args {
+  userId = "userId",
+}
+
+type LOGIN = `/${Paths.login}`;
+type APP = `/${Paths.app}`;
+type ABOUT = `/${Paths.app}/${Paths.about}`;
+type USER = `/${Paths.app}/${Paths.users}/:${Args.userId}`;
+type USERS = `/${Paths.app}/${Paths.users}`;
+type USER_CATS = `/${Paths.app}/${Paths.users}/:${Args.userId}/${Paths.cats}`;
+
+const ROUTES = {
+  LOGIN: new Route<LOGIN>({
+    name: "login",
+    path: "/login",
+  }),
+
+  APP: new Route<APP>({
+    name: "app",
+    path: "/app",
+  }),
+
+  ABOUT: new Route<ABOUT>({
+    name: "about",
+    path: "/app/about",
+  }),
+
+  USERS: new Route<USERS>({
+    name: "users",
+    path: "/app/users",
+  }),
+
+  USER: new Route<USER>({
+    name: "user",
+    path: "/app/users/:userId",
+  }),
+
+  USER_CATS: new Route<USER_CATS>({
+    name: "user's cats",
+    path: "/app/users/:userId/cats",
+  }),
+};
+
+export default ROUTES;
