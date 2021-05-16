@@ -44,8 +44,7 @@ export default class Route<Path extends string = string, Payload = undefined> {
 
 function buildPathRegExp(path: string, end?: boolean): RegExp {
   return new RegExp(
-    `${path.replace(/:(.)+\//, `(.)+/`).replace(/:(.)+/, `(.)+`)}${
-      end ? "$" : ""
-    }`
+    path.replace(/:([^/])+/g, "([^/])+").replace(/\/:([^/])+\?/, "/?([^/]?)+") +
+      (end ? "$" : "")
   );
 }
