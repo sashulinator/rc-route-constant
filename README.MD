@@ -4,8 +4,13 @@ Do you have a file `src/constants/routes.js`? Good. This libary will help you wi
 
 ```ts
 const ROUTES = {
-  LOGIN: new Route("Login page", "/login"),
-  MAIN: new Route("Main page", "/", "/main", { ICON: SomeIcon }),
+  LOGIN: new Route({ name: "Login page", path: "/login" }),
+  MAIN: new Route({
+    name: "Main page",
+    path: "/",
+    redirect: "/main",
+    payload: { ICON: SomeIcon },
+  }),
 };
 
 console.log(ROUTES);
@@ -18,16 +23,12 @@ console.log(ROUTES);
 //     isCurrent: false,
 //     isPrevious: false,
 //     isPartOf: (string) => boolean,
-//     ...
 //   },
 //   MAIN: {
 //     NAME: 'Main page',
 //     PATH: '/',
 //     REDIRECT: '/main',
 //     REDIRECT_PATH: '/main',
-//     isCurrent: false,
-//     isPrevious: false,
-//     isPartOf: (string) => boolean,
 //     PAYLOAD: {
 //       ICON: React.component
 //     }
@@ -36,50 +37,72 @@ console.log(ROUTES);
 // }
 ```
 
-### Problem to solve
+### Solves Problems
 
-- Is previous route?
-- Is current route?
+- You do not need to store queries in redux when user left page and redirect to URL with stored queries when user comes back!
+- Is this route current?
+- Is this route previous? (WARNING! Need some actions to make it works!)
+- Page titles in one place!
 - Is this route part of that route?
 - Get routes for Breadcrumbs
-- Get all routes by regExp
-- Save url queries
+- Get routes by regExp
 
-## How to start
+## Main usage
 
-### Route constant
+### Route constants
 
-To create constants I highly recommend using a class instead of an object because of autocompletion and ...
-
-```ts
-import Route from "@savchenko91/rc-route-constant";
-import CatIcon from "./monsterIcon";
-
-class ROUTES {
-  public readonly ABOUT: Route;
-  public readonly ABOUT_ME: Route;
-  public readonly ABOUT_MY_CAT: Route;
-  public readonly MAIN: Route;
-
-  constructor() {
-    this.MAIN = new Route("main page", `/`);
-
-    const about = "/about";
-    const aboutMe = "/about/me";
-    const aboutMyCat = "/about/myCat";
-
-    this.ABOUT_ME = new Route("about me", aboutMe);
-
-    this.ABOUT_MY_CAT = new Route("about my cat", aboutMyCat, null, {
-      ICON: CatIcon,
-    });
-
-    // ...You can't do smth like this in object assertion
-    this.ABOUT = new Route("about", about, aboutMe);
-  }
+```tsx
+export enum Params {
+  catId = 'catId',
+  userId = 'userId',
 }
 
-export default new ROUTES();
+export enum Paths {
+  cats = 'cats',
+  create = 'create',
+  remove = 'remove',
+  users = 'users',
+}
+
+export type CAT = `/${Paths.users}/:${Params.userId}/${Paths.cats}/:${Params.catId}`
+export type CAT_CREATE = `/${Paths.users}/:${Params.userId}/${Paths.cats}/create`;
+export type CAT_LIST = `/${Paths.users}/:${Params.userId}/${Paths.cats}`
+export type CAT_REMOVE = `/${Paths.users}/:${Params.userId}/${Paths.cats}/:${Params.catId}/remove`;
+export type USER = `/${Paths.users}/:${Params.userId}`;
+export type USER_LIST = `/${Paths.users}`;
+
+const ROUTES = {
+  CAT: new Route<CAT>({
+    name: 'User\'s cat',
+    path: '/user/:userId/cats/:catId'
+  }),
+  CAT_CREATE: new Route<CAT_CREATE>({
+    name: 'Create cat',
+    path: '/users/:userId/cats/:catId'
+  }),
+  CAT_LIST: new Route<CAT_LIST>({
+    name: 'Cats',
+    path: '/users/:userId/cats/:catId'
+  }),
+  CAT_REMOVE: new Route<CAT_REMOVE>({
+    name: 'Remove cat',
+    path: '/users/:userId/cats/:catId/remove'
+  }),
+  USER: new Route<USER>({
+    name: 'User',
+    path: '/users/:userId'
+  }),
+  USER_LIST: new Route<USER_LIST>({
+    name: 'Users',
+    path: '/users'
+  })
+}
+
+// Well done! Now you can use it!
+<Route path={ROUTES.USER.PATH}>
+
+// Need a link href?
+<Link to={ROUTES.CAT.PATH.replace(Params.userId, '33').replace(Params.catId, '77')}>
 ```
 
 ### Set previous
@@ -94,7 +117,7 @@ import ROUTES from "./path/to/your/constants/routes";
 function ParentComponent() {
   const location = useLocation();
 
-  // write "{ ...ROUTES }" if you use TS because of ERROR TS2345
+  // Write "{ ...ROUTES }" if you use TS because of ERROR TS2345
   setPreviousRoute({ ...ROUTES });
 
   return <div>...</div>;
@@ -113,10 +136,10 @@ import { getСurrent } from "@savchenko91/rc-route-constant";
 import ROUTES from "./path/to/your/constants/routes";
 
 function Component() {
-  useLocation(); // component renders by every pathname change
+  useLocation(); // render on every pathname change
 
-  // write "{ ...ROUTES }" if you use TS because of ERROR TS2345
-  document.title = `You are on page "${getСurrent({ ...ROUTES })?.NAME || ""}"`;
+  // If uou use an old TS version you need to write "{ ...ROUTES }"
+  document.title = `You are on page "${getСurrent({ ...ROUTES }).NAME}`;
 
   return <div>...</div>;
 }
@@ -128,7 +151,7 @@ function Component() {
 import { getListByRegExp } from "@savchenko91/rc-route-constant";
 import ROUTES from "./path/to/your/constants/routes";
 
-function Sider() {
+function ListWithAppLinks() {
   const routes = useMemo(
     () => getListByRegExp(ROUTES, /\/app\/([a-z-]+)$/),
     []
@@ -176,35 +199,78 @@ function Breadcrumbs() {
 }
 ```
 
-### Save url queries
+### Store queries
 
-This is the case: you have a car service with routes `search/car` and `search/client` and you want to store search queries somewhere, you can save them like this:
+This is the case:
+
+1. You have two tabs by routes `search/cats` and `search/users` on page `search`
+2. You want to store search queries when user leaves the page `search`
+3. You want to store last opened tab when user leaves the page `search`
+
+Store them into REDIRECT property!
 
 ```ts
-if (ROUTES.CAR.isCurrent) {
-  ROUTES.SEARCH.REDIRECT = ROUTES.CAR;
-  ROUTES.CLIENT.REDIRECT = location.pathname;
-} else {
-  ROUTES.SEARCH.REDIRECT = ROUTES.CLIENT;
-  ROUTES.CAR.REDIRECT = location.pathname;
-}
+React.useEffect(
+  () => () => {
+    if (ROUTES.CAR.isCurrent) {
+      // Store current pathname into CLIENT.REDIRECT
+      ROUTES.CLIENT.REDIRECT = location.pathname;
+      // Store current tab into SEARCH.REDIRECT
+      ROUTES.SEARCH.REDIRECT = ROUTES.CAR;
+    } else {
+      // Store current pathname into CLIENT.REDIRECT
+      ROUTES.CAR.REDIRECT = location.pathname;
+      // Store current tab into SEARCH.REDIRECT
+      ROUTES.SEARCH.REDIRECT = ROUTES.CLIENT;
+    }
+  },
+  []
+);
 ```
 
-Now user is on a page "about" and clicks on a link "search":
+Okey. We store them all and now we want to get them back:
 
 ```tsx
-const redirectPath = ROUTES.SEARCH.REDIRECT_PATH
-console.log(redirectPath) // /search/car?brend=lada&model=vesta
-<Link to={redirectPath}>Search page</Link>
+const searchPath = ROUTES.SEARCH.REDIRECT_PATH
+console.log(searchPath) // /search/cats?user=John&breed=Siamese
+<Link to={searchPath}>Search page</Link>
 ```
 
-See? You saved the queries into ROUTES.CAR but you get them from ROUTES.SEARCH
+See? You store the pathnames into `ROUTES.CAT` and `ROUTES.USER` but you get them from `ROUTES.SEARCH`
+If you want to know how it works see the code below:
 
 ```ts
-// CODE FROM THIS LIBRARY
+// CODE FROM THIS LIBRARY!
 get REDIRECT_PATH(): string {
   if (!this.REDIRECT) return this.PATH;
 
   return this.REDIRECT instanceof Route ? this.REDIRECT.REDIRECT_PATH : this.REDIRECT;
 }
+```
+
+### Extend it!
+
+Sometimes you have many params in a path and you need to add some queries so you might want to extend Routes
+
+```tsx
+import RcRoute from '@savchenko91/rc-route-constant';
+import qs from 'qs';
+
+export class Route<P extends string, RouteParams extends Record<string, string | undefined> = {}> extends RcRoute<P> {
+  buildHref = (obj: RouteParams, queries?: Record<string, string>) => {
+    const hrefWithReplacedParams = Object.entries(obj).reduce<string>((path, [key, value = '']) => {
+      return path.replace(`/:${key}?`, `/${value}`).replace(`/:${key}`, `/${value}`);
+    }, this.PATH);
+    // Remove optional params if they exist
+    const href = hrefWithReplacedParams.replace(/\/:([a-zA-Z-_])+\?/g, '');
+
+    if (!queries) return href
+
+    return `${href}${qs.stringify(queries, { skipNulls: true, addQueryPrefix: true })}`;
+
+  };
+}
+
+// Well done! Now you can use it!
+<Link to={ROUTES.CAT.buildHref({ userId: '33', catId: '77' }, { cute: 'true' })}>
 ```
