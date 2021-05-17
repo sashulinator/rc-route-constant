@@ -14,7 +14,7 @@ export default class Route<Path extends string = string, Payload = undefined> {
 
   PAYLOAD: Payload;
 
-  REDIRECT: Route<Path, Payload> | string;
+  REDIRECT: Route | string;
 
   isPrevious: boolean;
 
