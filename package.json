@@ -15,6 +15,7 @@
     "/dist"
   ],
   "scripts": {
+    "preinstall": "node yarn-only.js",
     "build": "tsc",
     "prepare": "npm run build",
     "test": "jest --coverage"
