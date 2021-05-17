@@ -34,17 +34,24 @@ export default class Route<Path extends string = string, Payload = undefined> {
   }
 
   get isCurrent(): boolean {
-    return buildPathRegExp(this.PATH, true).test(window?.location?.pathname);
+    return buildRegExpFromPath(this.PATH, true).test(
+      window?.location?.pathname
+    );
   }
 
   isPartOf = (path?: string): boolean => {
-    return buildPathRegExp(this.PATH).test(path || window.location.pathname);
+    return buildRegExpFromPath(this.PATH).test(
+      path || window?.location?.pathname
+    );
   };
 }
 
-function buildPathRegExp(path: string, end?: boolean): RegExp {
-  return new RegExp(
-    path.replace(/:([^/])+/g, "([^/])+").replace(/\/:([^/])+\?/, "/?([^/]?)+") +
-      (end ? "$" : "")
-  );
+function buildRegExpFromPath(path: string, exactMatch?: boolean): RegExp {
+  const dollarSign = exactMatch ? "$" : "";
+  // replace all params like ':id' and then replace optional params like ':id?'
+  const regExp = path
+    .replace(/:([^/])+/g, "([^/])+")
+    .replace(/\/:([^/])+\?/, "/?([^/]?)+");
+
+  return new RegExp(`${regExp}${dollarSign}`);
 }
