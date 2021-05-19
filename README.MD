@@ -132,14 +132,14 @@ You can automatically set a page title
 
 ```ts
 import { useLocation } from "react-router-dom";
-import { getСurrent } from "@savchenko91/rc-route-constant";
+import { getCurrent } from "@savchenko91/rc-route-constant";
 import ROUTES from "./path/to/your/constants/routes";
 
 function Component() {
   useLocation(); // render on every pathname change
 
   // If uou use an old TS version you need to write "{ ...ROUTES }"
-  document.title = `You are on page "${getСurrent({ ...ROUTES }).NAME}`;
+  document.title = `You are on page "${getCurrent({ ...ROUTES }).NAME}`;
 
   return <div>...</div>;
 }
@@ -267,7 +267,6 @@ export class Route<P extends string, RouteParams extends Record<string, string |
     if (!queries) return href
 
     return `${href}${qs.stringify(queries, { skipNulls: true, addQueryPrefix: true })}`;
-
   };
 }
 
